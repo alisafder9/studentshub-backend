@@ -1,4 +1,3 @@
-// filepath: c:\Users\win10\Downloads\Web Development\React\studentshub-Mongo\studentshub-backend\src\routes\userRoutes.js
 const express = require('express');
 const { body } = require('express-validator');
 const UserController = require('../controllers/userController');
@@ -21,5 +20,15 @@ router.post('/forgot-password', [
 
 router.get('/name', UserController.getName);
 
+// New endpoint to fetch user profile by email
+router.get('/profile', UserController.getProfile);
+
+// New endpoint to update user profile (name, password, dob)
+router.put('/profile', [
+    body('email').notEmpty().withMessage('Email is required'),
+    body('name').optional().isLength({ min: 3 }).withMessage('Name must be at least 3 characters long'),
+    body('password').optional().isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
+    body('dob').optional().isDate().withMessage('Date of birth must be a valid date')
+], UserController.updateProfile);
 
 module.exports = router;
