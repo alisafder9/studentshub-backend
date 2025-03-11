@@ -1,4 +1,3 @@
-// filepath: c:\Users\win10\Downloads\Web Development\React\studentshub-Mongo\studentshub-backend\src\controllers\userController.js
 const User = require('../models/userModel');
 const jwt = require('jsonwebtoken');
 
@@ -56,7 +55,6 @@ class UserController {
 
     // Get user's name
     static async getName(req, res) {
-        
         const { email } = req.query;
         
         try {
@@ -69,6 +67,51 @@ class UserController {
             res.status(200).json({ name: user.name });
         } catch (error) {
             res.status(500).json({ message: "Error fetching user's name", error: error.message });
+        }
+    }
+
+    // Get user profile by email
+    static async getProfile(req, res) {
+        const { email } = req.query;
+
+        try {
+            const user = await User.findOne({ email });
+            if (!user) {
+                return res.status(404).json({ message: "User not found" });
+            }
+
+            // Return only necessary profile information
+            res.status(200).json({
+                name: user.name,
+                email: user.email,
+                password: user.password,
+                dob: user.dob
+            });
+        } catch (error) {
+            res.status(500).json({ message: "Error fetching user profile", error: error.message });
+        }
+    }
+
+    // Update user profile (name, password, dob)
+    static async updateProfile(req, res) {
+        const { email, name, password, dob } = req.body;
+
+        try {
+            const user = await User.findOne({ email });
+            if (!user) {
+                return res.status(404).json({ message: "User not found" });
+            }
+
+            // Update fields if they are provided in the request
+            if (name) user.name = name;
+            if (password) user.password = password;
+            if (dob) user.dob = dob;
+
+            await user.save();
+
+            res.status(200).json({ message: "Profile updated successfully", user });
+        } catch (error) {
+            res.status(500).json({ message: "Error updating profile", error: error.message });
         }
     }
 }
