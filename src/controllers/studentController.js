@@ -68,12 +68,18 @@ class StudentController {
     // Search students by admission number or name
     static async searchStudents(req, res) {
         const { query } = req.query;
+        const user = req.user.userId;
         try {
             const students = await Student.find({
+                $and: [
+                    {user: user},
+                    {
                 $or: [
                     { admission_no: { $regex: query, $options: 'i' } },
                     { name: { $regex: query, $options: 'i' } }
                 ]
+                    }
+                    ]
             });
             res.status(200).json({ students });
         } catch (error) {
